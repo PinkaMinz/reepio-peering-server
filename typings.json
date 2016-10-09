@@ -1,0 +1,12 @@
+{
+  "name": "reepio-peering-server",
+  "dependencies": {},
+  "globalDependencies": {
+    "commander": "registry:dt/commander#2.3.0+20160317120654",
+    "jasmine": "registry:dt/jasmine#2.5.0+20161003201800",
+    "mock-fs": "registry:dt/mock-fs#3.6.0+20160317120654",
+    "mockery": "registry:dt/mockery#1.4.0+20160316155526",
+    "node": "registry:dt/node#6.0.0+20161008175459",
+    "sinon": "registry:dt/sinon#1.16.0+20160924120326"
+  }
+}
