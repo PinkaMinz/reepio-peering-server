@@ -3,26 +3,26 @@
  */
 
 (function () {
-	var winston = require('winston'),
-		loader = require('./config');
+	var winston = require('winston');
 
 	var env = process.env.NODE_ENV || 'dev',
-		config = loader.loadSync('logging.json'),
 		transports = [],
 		exceptionHandlers = [];
+
+    var logDir = process.env.APP_LOG_DIR || '../logs/';
 
 	switch(env)
 	{
 		case 'prod':
-			transports = [
+            transports = [
 				new winston.transports.File({
-					filename: path.resolve(config.logDir, 'debug.log'),
+					filename: path.resolve(logDir, 'debug.log'),
 					json: false
 				})
 			];
 			exceptionHandlers = [
 				new (winston.transports.File)({
-					filename: path.resolve(config.logDir, 'error.log'),
+					filename: path.resolve(logDir, 'error.log'),
 					json: false,
 					timestamp: true
 				})

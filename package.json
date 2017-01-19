@@ -12,7 +12,6 @@
         "daemon": "^1.1.0"
     },
     "scripts": {
-        "postinstall": "cp -n config/dev/logging.dist.json config/dev/logging.json && cp -n config/dev/peering-server.dist.json config/dev/peering-server.json",
         "test": "node node_modules/mocha/bin/mocha test",
         "start": "node src/server.js"
     },
