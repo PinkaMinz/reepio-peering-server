@@ -1,57 +1,40 @@
-/**
- * Created by andre (http://korve.github.io/) on 07.06.2014
- *
- * Handles incoming http requests and serves the peertome.net frontend
- */
-var peer = require( 'peer' ),
-    logger = require( './logger' ),
-    fs = require( 'fs' );
+"use strict";
 
-var numConnections = 0;
-var port = process.env.APP_PORT || 9000;
-var path = process.env.APP_PATH || '/';
-var sslKey = process.env.APP_SSL_KEY;
-var ipLimit = process.env.APP_IP_LIMIT || 10;
-var concurrentLimit = process.env.APP_CONCURRENT_LIMIT || Number.MAX_VALUE;
-var statsInterval = process.env.APP_STATS_INTERVAL || 10000;
+const util = require('util');
+const program = require('commander');
+const packageJson = require("../package.json");
+const peer = require( 'peer' );
 
-var opts = {
-    port: port,
-    path: path,
-    key: sslKey,
-    ip_limit: ipLimit,
-    concurrent_limit: concurrentLimit
+let options;
+
+program
+	.version(packageJson.version)
+	.option('--host <n>', 'Set host', '0.0.0.0')
+	.option('--port <n>', 'Set ws port', 9001)
+	.option('--path <path>', 'Set url path', '/')
+	.option('--private-key', 'Set ssl private key', null, null)
+	.option('--public-key', 'Set ssl public key', null, null)
+	.option('--ip-limit <n>', 'Set max number of connections per ip address', null, 10)
+	.parse(process.argv);
+
+options = {
+	host: program.host,
+	port: program.port,
+	path: program.path,
+	concurrent_limit: program.ipLimit
 };
 
-if ( process.env.APP_SSL_ENABLED ) {
-    var sslCert = process.env.APP_SSL_CERT;
-    opts[ 'ssl' ] = {
-        key: fs.readFileSync( sslKey ),
-        certificate: fs.readFileSync( sslCert )
-    }
+if(program.privateKey && program.publicKey) {
+	options.ssl = {
+		key: fs.readFileSync( program.privateKey ),
+		certificate: fs.readFileSync( program.publicKey )
+	};
 }
 
-var server = new peer.PeerServer( opts );
-
-server.on( 'connection', function( id ) {
-    numConnections++;
-    logger.info( '[%s] connected', id );
-} );
-
-server.on( 'disconnect', function( id ) {
-    numConnections--;
-    logger.info( '[%s] disconnected', id );
-} );
-
-logger.info( 'Listening on ws://localhost:%d\t[ipLimit: %d]\t[concurrentLimit: %d]',
-    port, ipLimit, concurrentLimit );
-
-setInterval( printStats, statsInterval );
-
-function printStats() {
-    var memUsage = (process.memoryUsage().heapUsed / (1024 * 1024)).toFixed( 2 ) + 'MB';
-
-    logger.info( 'stats:\t[mem: %s]\t[conns: %d]', memUsage, numConnections );
-    return printStats;
+console.log( `peering server [${options.host}:${options.port}${options.path}] starting with options: ${util.inspect(options)}` );
+try {
+	new peer.PeerServer( options );
+} catch(e) {
+	console.error(e);
+	process.exit(2);
 }
-
