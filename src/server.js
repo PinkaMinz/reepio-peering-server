@@ -1,5 +1,6 @@
 "use strict";
 
+const fs = require('fs');
 const util = require('util');
 const program = require('commander');
 const packageJson = require("../package.json");
